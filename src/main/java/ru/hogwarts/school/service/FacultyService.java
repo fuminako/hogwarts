@@ -5,6 +5,7 @@ import ru.hogwarts.school.exceptions.NoFacultyInListException;
 import ru.hogwarts.school.exceptions.NoStudentInListException;
 import ru.hogwarts.school.model.Faculty;
 
+import java.util.ArrayList;
 import java.util.Collection;
 import java.util.HashMap;
 import java.util.Map;
@@ -51,6 +52,16 @@ public class FacultyService {
         } else {
             throw new NoStudentInListException("Факультет не найден");
         }
+    }
+
+    public Collection<Faculty> findByColor(String color){
+        ArrayList<Faculty> result = new ArrayList<>();
+        for (Faculty faculty : facultyMap.values()){
+            if (color.equals(faculty.getColor())){
+                result.add(faculty);
+            }
+        }
+        return result;
     }
 }
 
