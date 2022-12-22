@@ -1,65 +1,48 @@
 package ru.hogwarts.school.service;
 
 import org.springframework.stereotype.Service;
-import ru.hogwarts.school.exceptions.NoStudentInListException;
+import org.springframework.transaction.annotation.Transactional;
 import ru.hogwarts.school.model.Student;
+import ru.hogwarts.school.repository.StudentRepository;
 
-import java.util.ArrayList;
 import java.util.Collection;
-import java.util.HashMap;
-import java.util.Map;
 
 @Service
 public class StudentService {
-    private long counter = 0L;
+    private final StudentRepository studentRepository;
 
-    private final Map<Long, Student> studentMap = new HashMap<>();
-
-    public Student addStudent(Student student) {
-        long newId = counter++;
-        student.setId(newId);
-        studentMap.put(newId, student);
-        return student;
+    public StudentService(StudentRepository studentRepository) {
+        this.studentRepository = studentRepository;
     }
 
+    public Student addStudent(Student student) {
+        return studentRepository.save(student);
+    }
+
+    @Transactional
     public Student updateStudent(Long studentId, Student student) {
-        if (this.studentMap.containsKey(studentId)) {
-            Student oldStudent = this.studentMap.get(studentId);
-            oldStudent.setAge(student.getAge());
-            oldStudent.setName(student.getName());
-            return oldStudent;
-        } else {
-            throw new NoStudentInListException("Студент не найден");
-        }
+        return this.studentRepository.findById(studentId).map(
+                        s -> {
+                            s.setName(student.getName());
+                            s.setAge(student.getAge());
+                            return s;
+                        })
+                .orElseThrow();
     }
 
     public Collection<Student> getAllStudent() {
-        return studentMap.values();
+        return studentRepository.findAll();
     }
 
     public Student getStudentById(Long id) {
-        if (this.studentMap.containsKey(id)) {
-            return studentMap.get(id);
-        } else {
-            throw new NoStudentInListException("Студент не найден");
-        }
+        return this.studentRepository.findById(id).orElseThrow();
     }
 
     public void deleteStudent(Long id) {
-        if (this.studentMap.containsKey(id)) {
-            this.studentMap.remove(id);
-        } else {
-            throw new NoStudentInListException("Студент не найден");
-        }
+        studentRepository.deleteById(id);
     }
 
     public Collection<Student> findByAge(int age) {
-        ArrayList<Student> result = new ArrayList<>();
-        for (Student student : studentMap.values()) {
-            if (student.getAge() == age) {
-                result.add(student);
-            }
-        }
-        return result;
+        return this.studentRepository.findByAge(age);
     }
 }

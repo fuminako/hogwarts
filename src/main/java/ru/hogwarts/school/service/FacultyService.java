@@ -1,67 +1,49 @@
 package ru.hogwarts.school.service;
 
 import org.springframework.stereotype.Service;
-import ru.hogwarts.school.exceptions.NoFacultyInListException;
-import ru.hogwarts.school.exceptions.NoStudentInListException;
+import org.springframework.transaction.annotation.Transactional;
 import ru.hogwarts.school.model.Faculty;
+import ru.hogwarts.school.repository.FacultyRepository;
 
-import java.util.ArrayList;
 import java.util.Collection;
-import java.util.HashMap;
-import java.util.Map;
 
 @Service
 public class FacultyService {
-    private long counter = 0L;
+    private final FacultyRepository facultyRepository;
 
-    private final Map<Long, Faculty> facultyMap = new HashMap<>();
-
-    public Faculty addFaculty(Faculty faculty) {
-        long newId = counter++;
-        faculty.setId(newId);
-        facultyMap.put(newId, faculty);
-        return faculty;
+    public FacultyService(FacultyRepository facultyRepository) {
+        this.facultyRepository = facultyRepository;
     }
 
+    public Faculty addFaculty(Faculty faculty) {
+        return facultyRepository.save(faculty);
+    }
+
+    @Transactional
     public Faculty updateFaculty(Long id, Faculty faculty) {
-        if (this.facultyMap.containsKey(id)) {
-            Faculty oldFaculty = this.facultyMap.get(id);
-            oldFaculty.setColor(faculty.getColor());
-            oldFaculty.setName(faculty.getName());
-            return oldFaculty;
-        } else {
-            throw new NoFacultyInListException("Факультет не найден");
-        }
+        return this.facultyRepository.findById(id).map(
+                        f -> {
+                            f.setName(faculty.getName());
+                            f.setColor(faculty.getColor());
+                            return f;
+                        })
+                .orElseThrow();
     }
 
     public Faculty getFacultyById(Long id) {
-        if (this.facultyMap.containsKey(id)) {
-            return facultyMap.get(id);
-        } else {
-            throw new NoFacultyInListException("Факультет не найден");
-        }
+        return this.facultyRepository.findById(id).orElseThrow();
     }
 
     public Collection<Faculty> getAllFaculty() {
-        return facultyMap.values();
+        return facultyRepository.findAll();
     }
 
     public void deleteFaculty(Long id) {
-        if (this.facultyMap.containsKey(id)) {
-            this.facultyMap.remove(id);
-        } else {
-            throw new NoStudentInListException("Факультет не найден");
-        }
+        facultyRepository.deleteById(id);
     }
 
-    public Collection<Faculty> findByColor(String color){
-        ArrayList<Faculty> result = new ArrayList<>();
-        for (Faculty faculty : facultyMap.values()){
-            if (color.equals(faculty.getColor())){
-                result.add(faculty);
-            }
-        }
-        return result;
+    public Collection<Faculty> findByColor(String color) {
+        return this.facultyRepository.findByColor(color);
     }
 }
 
