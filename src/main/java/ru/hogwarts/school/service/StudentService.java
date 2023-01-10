@@ -1,11 +1,14 @@
 package ru.hogwarts.school.service;
 
 import org.springframework.stereotype.Service;
-import org.springframework.transaction.annotation.Transactional;
+import ru.hogwarts.school.dto.StudentDto;
+import ru.hogwarts.school.mapper.StudentMapper;
+import ru.hogwarts.school.model.Faculty;
 import ru.hogwarts.school.model.Student;
 import ru.hogwarts.school.repository.StudentRepository;
 
 import java.util.Collection;
+import java.util.stream.Collectors;
 
 @Service
 public class StudentService {
@@ -15,34 +18,46 @@ public class StudentService {
         this.studentRepository = studentRepository;
     }
 
-    public Student addStudent(Student student) {
-        return studentRepository.save(student);
+
+    public StudentDto addStudent(StudentDto studentDto) {
+        return StudentMapper.toDto(this.studentRepository.save(StudentMapper.toEntity(studentDto)));
     }
 
-    @Transactional
-    public Student updateStudent(Long studentId, Student student) {
-        return this.studentRepository.findById(studentId).map(
-                        s -> {
-                            s.setName(student.getName());
-                            s.setAge(student.getAge());
-                            return s;
-                        })
-                .orElseThrow();
+    public StudentDto updateStudent(Long id, StudentDto studentDto) {
+        Student student = this.studentRepository.findById(id).orElseThrow();
+        student.setName(studentDto.getName());
+        student.setAge(studentDto.getAge());
+        return StudentMapper.toDto(this.studentRepository.save(student));
     }
 
-    public Collection<Student> getAllStudent() {
-        return studentRepository.findAll();
+    public StudentDto getStudentById(Long id) {
+        return StudentMapper.toDto(this.studentRepository.findById(id).orElseThrow());
     }
 
-    public Student getStudentById(Long id) {
-        return this.studentRepository.findById(id).orElseThrow();
+    public Collection<StudentDto> getAllStudent() {
+        return studentRepository.findAll().stream().map(StudentMapper::toDto).collect(Collectors.toList());
     }
 
     public void deleteStudent(Long id) {
-        studentRepository.deleteById(id);
+        Student student = this.studentRepository.findById(id).orElseThrow();
+        studentRepository.delete(student);
     }
 
-    public Collection<Student> findByAge(int age) {
-        return this.studentRepository.findByAge(age);
+    public Collection<StudentDto> findByAge(int age) {
+        return this.studentRepository.findByAge(age).stream().map(StudentMapper::toDto).collect(Collectors.toList());
     }
+
+    public Collection<StudentDto> findByAgeBetween(int minAge, int maxAge) {
+        return this.studentRepository
+                .findByAgeBetween(minAge, maxAge)
+                .stream().
+                map(StudentMapper::toDto)
+                .collect(Collectors.toList());
+    }
+
+    public Faculty getFaculty(Long id) {
+        Student student = this.studentRepository.findById(id).orElseThrow();
+        return student.getFaculty();
+    }
+
 }

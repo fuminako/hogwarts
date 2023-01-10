@@ -1,11 +1,14 @@
 package ru.hogwarts.school.service;
 
 import org.springframework.stereotype.Service;
-import org.springframework.transaction.annotation.Transactional;
+import ru.hogwarts.school.dto.FacultyDto;
+import ru.hogwarts.school.mapper.FacultyMapper;
 import ru.hogwarts.school.model.Faculty;
+import ru.hogwarts.school.model.Student;
 import ru.hogwarts.school.repository.FacultyRepository;
 
 import java.util.Collection;
+import java.util.stream.Collectors;
 
 @Service
 public class FacultyService {
@@ -15,35 +18,42 @@ public class FacultyService {
         this.facultyRepository = facultyRepository;
     }
 
-    public Faculty addFaculty(Faculty faculty) {
-        return facultyRepository.save(faculty);
+    public FacultyDto addFaculty(FacultyDto faculty) {
+        return FacultyMapper.toDto(this.facultyRepository.save(FacultyMapper.toEntity(faculty)));
     }
 
-    @Transactional
-    public Faculty updateFaculty(Long id, Faculty faculty) {
-        return this.facultyRepository.findById(id).map(
-                        f -> {
-                            f.setName(faculty.getName());
-                            f.setColor(faculty.getColor());
-                            return f;
-                        })
-                .orElseThrow();
+    public FacultyDto updateFaculty(Long id, FacultyDto facultyDTO) {
+        Faculty faculty = this.facultyRepository.findById(id).orElseThrow();
+        faculty.setName(facultyDTO.getName());
+        faculty.setColor(facultyDTO.getColor());
+        return FacultyMapper.toDto(this.facultyRepository.save(faculty));
     }
 
-    public Faculty getFacultyById(Long id) {
-        return this.facultyRepository.findById(id).orElseThrow();
+    public FacultyDto getFacultyById(Long id) {
+        return FacultyMapper.toDto(this.facultyRepository.findById(id).orElseThrow());
     }
 
-    public Collection<Faculty> getAllFaculty() {
-        return facultyRepository.findAll();
+    public Collection<FacultyDto> getAllFaculty() {
+        return facultyRepository.findAll().stream().map(FacultyMapper::toDto).collect(Collectors.toList());
     }
 
     public void deleteFaculty(Long id) {
-        facultyRepository.deleteById(id);
+        Faculty faculty = this.facultyRepository.findById(id).orElseThrow();
+        facultyRepository.delete(faculty);
     }
 
-    public Collection<Faculty> findByColor(String color) {
-        return this.facultyRepository.findByColor(color);
+    public Collection<FacultyDto> findByColor(String color) {
+        return this.facultyRepository.findByColor(color).stream().map(FacultyMapper::toDto).collect(Collectors.toList());
+    }
+
+    public Collection<FacultyDto> findByColorOrName(String colorOrNane) {
+        return this.facultyRepository.findByColorIgnoreCaseOrNameIgnoreCase(colorOrNane, colorOrNane)
+                .stream().map(FacultyMapper::toDto).collect(Collectors.toList());
+    }
+
+    public Collection<Student> findStudent(Long id) {
+        Faculty faculty = this.facultyRepository.findById(id).orElseThrow();
+        return faculty.getStudents();
     }
 }
 
