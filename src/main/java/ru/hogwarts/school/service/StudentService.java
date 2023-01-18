@@ -60,4 +60,16 @@ public class StudentService {
         return student.getFaculty();
     }
 
+    public long countStudent() {
+        return this.studentRepository.countStudent();
+    }
+
+    public double getStudentAverageAge() {
+        return this.studentRepository.getStudentAverageAge();
+    }
+
+    public Collection<StudentDto> findLastStudent() {
+        return this.studentRepository.findLastStudent();
+    }
+
 }

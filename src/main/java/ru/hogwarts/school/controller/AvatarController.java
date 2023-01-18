@@ -6,6 +6,7 @@ import org.springframework.http.MediaType;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 import org.springframework.web.multipart.MultipartFile;
+import ru.hogwarts.school.dto.StudentDto;
 import ru.hogwarts.school.model.Avatar;
 import ru.hogwarts.school.service.AvatarService;
 
@@ -15,6 +16,8 @@ import java.io.InputStream;
 import java.io.OutputStream;
 import java.nio.file.Files;
 import java.nio.file.Path;
+import java.util.Collection;
+import java.util.Collections;
 
 @RestController
 @RequestMapping("/avatar")
@@ -61,5 +64,13 @@ public class AvatarController {
             response.setContentLength((int) avatar.getFileSize());
             is.transferTo(os);
         }
+    }
+
+    @GetMapping("/get_list")
+    public ResponseEntity<Collection<Avatar>> getAvatarList(@RequestParam int pageNumber) {
+        if (pageNumber >= 0) {
+            return ResponseEntity.ok(service.getAvatarList(pageNumber));
+        }
+        return ResponseEntity.ok(Collections.emptyList());
     }
 }

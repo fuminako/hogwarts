@@ -75,4 +75,19 @@ public class StudentController {
         }
         return ResponseEntity.noContent().build();
     }
+
+    @GetMapping("/count")
+    public long countStudent() {
+        return this.service.countStudent();
+    }
+
+    @GetMapping("/average_age")
+    public double getStudentAverageAge() {
+        return this.service.getStudentAverageAge();
+    }
+
+    @GetMapping("/find/last")
+    public Collection<StudentDto> findLastStudent() {
+        return this.service.findLastStudent();
+    }
 }
