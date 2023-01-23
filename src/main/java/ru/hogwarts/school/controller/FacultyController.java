@@ -5,6 +5,7 @@ import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 import ru.hogwarts.school.dto.FacultyDto;
 
+import ru.hogwarts.school.model.Faculty;
 import ru.hogwarts.school.model.Student;
 import ru.hogwarts.school.service.FacultyService;
 
@@ -77,6 +78,11 @@ public class FacultyController {
             return ResponseEntity.ok(service.findStudent(id));
         }
         return ResponseEntity.ok((Collections.emptyList()));
+    }
+
+    @GetMapping("/longest_name")
+    public String getFacultyLongestName(){
+        return this.service.getFacultyLongestName();
     }
 }
 

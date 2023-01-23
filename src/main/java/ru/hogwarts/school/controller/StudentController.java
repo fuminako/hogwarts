@@ -90,4 +90,19 @@ public class StudentController {
     public Collection<StudentDto> findLastStudent() {
         return this.service.findLastStudent();
     }
+
+    @GetMapping("/A")
+    public Collection<String> findStudentByLetter() {
+        return this.service.findStudentByLetter();
+    }
+
+    @GetMapping("/average_age/stream")
+    public double getStudentAverageAgeStream() {
+        return this.service.getStudentAverageAgeStream();
+    }
+
+    @GetMapping("/int")
+    public int getInt() {
+        return this.service.getInt();
+    }
 }

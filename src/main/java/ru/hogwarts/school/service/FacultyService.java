@@ -8,9 +8,11 @@ import ru.hogwarts.school.mapper.FacultyMapper;
 import ru.hogwarts.school.model.Faculty;
 import ru.hogwarts.school.model.Student;
 import ru.hogwarts.school.repository.FacultyRepository;
+import ru.hogwarts.school.repository.StudentRepository;
 
 import java.util.Collection;
 
+import java.util.List;
 import java.util.stream.Collectors;
 
 @Service
@@ -19,9 +21,12 @@ public class FacultyService {
     private static final Logger logger = LoggerFactory.getLogger(FacultyService.class);
 
     private final FacultyRepository facultyRepository;
+    private final StudentRepository studentRepository;
 
-    public FacultyService(FacultyRepository facultyRepository) {
+    public FacultyService(FacultyRepository facultyRepository,
+                          StudentRepository studentRepository) {
         this.facultyRepository = facultyRepository;
+        this.studentRepository = studentRepository;
     }
 
     public FacultyDto addFaculty(FacultyDto faculty) {
@@ -68,6 +73,11 @@ public class FacultyService {
         logger.info("A method was called: findStudent");
         Faculty faculty = this.facultyRepository.findById(id).orElseThrow();
         return faculty.getStudents();
+    }
+
+    public String getFacultyLongestName() {
+        List<String> facultyNameList = facultyRepository.findAll().stream().map(Faculty::getName).toList();
+        return facultyNameList.stream().max(String::compareTo).get();
     }
 }
 
