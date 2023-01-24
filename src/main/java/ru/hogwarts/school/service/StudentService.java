@@ -103,4 +103,37 @@ public class StudentService {
         Stream<Integer> sum = Stream.iterate(1, a -> a + 1);
         return sum.parallel().limit(1_000_000).reduce(0, Integer::sum);
     }
+
+    public void printStudents() {
+        List<Student> students = this.studentRepository.findAll();
+        System.out.println(students.get(0).getName());
+        System.out.println(students.get(1).getName());
+        new Thread(
+                () -> {
+                    System.out.println(students.get(2).getName());
+                    System.out.println(students.get(3).getName());
+                })
+                .start();
+        new Thread(
+                () -> {
+                    System.out.println(students.get(4).getName());
+                    System.out.println(students.get(5).getName());
+                })
+                .start();
+    }
+
+    public void printStudentsSynchronized() {
+        List<Student> students = this.studentRepository.findAll();
+        print(students, 0, 1);
+        new Thread(() -> print(students, 2, 3));
+        new Thread(() -> print(students, 4, 5));
+
+    }
+
+    private synchronized void print(List<Student> list, int index1, int index2) {
+        System.out.println(list.get(index1).getName());
+        System.out.println(list.get(index2).getName());
+    }
+
+
 }

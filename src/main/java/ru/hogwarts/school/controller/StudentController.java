@@ -105,4 +105,14 @@ public class StudentController {
     public int getInt() {
         return this.service.getInt();
     }
+
+    @GetMapping("/print")
+    public void printStudents() {
+        this.service.printStudents();
+    }
+
+    @GetMapping("/print-synchronized")
+    public void printStudentsSynchronized() {
+        this.service.printStudentsSynchronized();
+    }
 }
